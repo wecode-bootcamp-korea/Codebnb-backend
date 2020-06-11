@@ -5,7 +5,7 @@ from room.models import Room
 
 class Review(models.Model):
     room       = models.ForeignKey('room.Room', on_delete=models.SET_NULL, null=True)
-    reviewer   = models.ForeignKey('ReviewerType' on_delete=models.SET_NULL, null=True)
+    reviewer   = models.ForeignKey('ReviewerType', on_delete=models.SET_NULL, null=True)
     host       = models.ForeignKey('user.User', on_delete=models.CASCADE, related_name='host_reviews')
     guest      = models.ForeignKey('user.User', on_delete=models.CASCADE, related_name='guest_reviews')
     rating     = models.OneToOneField('Rating', on_delete=models.SET_NULL, null=True)

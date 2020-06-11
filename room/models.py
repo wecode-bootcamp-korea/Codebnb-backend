@@ -8,12 +8,13 @@ class Room(models.Model):
     address           = models.CharField(max_length=200)
     description       = models.CharField(max_length=3000)
     rules             = models.TextField(null=True)
-    price             = models.DecimalField(max_digits=10, decimal_places=2)
+    price             = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     max_capacity      = models.IntegerField()
     check_in          = models.TimeField()
     check_out         = models.TimeField()
     latitude          = models.DecimalField(max_digits=10, decimal_places=8)
     longitude         = models.DecimalField(max_digits=10, decimal_places=8)
+    monthly_stay      = models.BooleanField(default=False)
     amenities         = models.ManyToManyField('Amenity', through='RoomAmenity')
     safety_facilities = models.ManyToManyField('SafetyFacility', through='RoomSafeFacility')
     shared_spaces     = models.ManyToManyField('SharedSpace', through='RoomSharedSpace')
@@ -49,6 +50,10 @@ class Bath(models.Model):
 
 class Bedroom(models.Model):
     room = models.ForeignKey('Room', on_delete=models.SET_NULL, null=True)
+    name = models.CharField(max_length=30)
+    
+    def __str__(self):
+        return name
 
     class Meta:
         db_table = 'bedrooms'
@@ -62,7 +67,7 @@ class BlockedDate(models.Model):
         db_table = 'blocked_dates' 
 
 class SharedSpace(models.Model):
-    name = models.CharField(max_length = 50)
+    name = models.CharField(max_length=50)
 
     def __str__(self):
         return name
@@ -71,7 +76,7 @@ class SharedSpace(models.Model):
         db_table = 'shared_spaces'
 
 class SafetyFacility(models.Model):
-    name = models.CharField(max_length = 50)
+    name = models.CharField(max_length=50)
 
     def __str__(self):
         return name
@@ -88,14 +93,14 @@ class Amenity(models.Model):
     class Meta:
         db_table = 'amenities'
 
-class Size(models.Model):
+class BedSize(models.Model):
     name = models.CharField(max_length = 50)
 
     def __str__(self):
         return name
 
     class Meta:
-        db_table = 'sizes'
+        db_table = 'bed_sizes'
 
 class PlaceType(models.Model):
     name = models.CharField(max_length = 50)

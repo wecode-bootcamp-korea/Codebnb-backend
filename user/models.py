@@ -5,7 +5,7 @@ from room.models import Room
 
 class User(models.Model):
     username        = models.CharField(max_length=50)
-    realname        = models.CharField(max_length=50)
+    fullname        = models.CharField(max_length=50)
     gender          = models.ForeignKey('Gender', on_delete=models.SET_NULL, null=True)
     profile         = models.OneToOneField('UserProfile', on_delete=models.SET_NULL, null=True)
     birthdate       = models.DateField(null=True)
@@ -15,7 +15,8 @@ class User(models.Model):
     is_host         = models.BooleanField(default=False)
     created_at      = models.DateTimeField(auto_now_add=True)
     reviews         = models.ManyToManyField('self', through='Review', symmetrical=False)
-    
+    platforms       = models.ManyToManyField('LoginPlatform', through='LoginInfo')
+  
     def __str__(self):
         return username
     
@@ -38,8 +39,8 @@ class UserProfile(models.Model):
         db_table = 'user_profiles'
 
 class LoginInfo(models.Model):
-    platform_type = models.CharField(max_length=50)
     email         = models.CharField(max_length=50)
+    platform      = models.ForeignKey('LoginPlatform', on_delete=models.CASCADE)
     user          = models.ForeignKey('User', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -47,6 +48,15 @@ class LoginInfo(models.Model):
 
     class Meta:
         db_table = 'login_info'
+
+class LoginPlatform:
+    name    = models.CharField(max_length=30)
+
+    def __str__(self):
+        return name
+
+    class Meta:
+        db_table = 'login_platform
 
 class Wishlist(models.Model):
     user    = models.ForeignKey('User', on_delete=models.CASCADE)
@@ -69,7 +79,7 @@ class WishlistTag(models.Model):
         db_table = 'wishlist_tags'
 
 class Gender(models.Model):
-    sex = models.CharField(max_length=20)
+    name = models.CharField(max_length=20)
 
     class Meta:
         db_table = 'genders'
