@@ -2,6 +2,7 @@ from django.db import models
 
 from booking.models import Booking
 from room.models import Room
+from review.models import Review
 
 class User(models.Model):
     username        = models.CharField(max_length=50)
@@ -14,11 +15,11 @@ class User(models.Model):
     emergency_phone = models.CharField(max_length=50, null=True)
     is_host         = models.BooleanField(default=False)
     created_at      = models.DateTimeField(auto_now_add=True)
-    reviews         = models.ManyToManyField('self', through='Review', symmetrical=False)
+    reviews         = models.ManyToManyField('self', through=Review, symmetrical=False)
     platforms       = models.ManyToManyField('LoginPlatform', through='LoginInfo')
   
     def __str__(self):
-        return username
+        return self.username
     
     class Meta:
         db_table = 'users'
@@ -33,30 +34,30 @@ class UserProfile(models.Model):
     preferred_language  = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return profile_header
+        return self.profile_header
     
     class Meta:
         db_table = 'user_profiles'
 
 class LoginInfo(models.Model):
-    email         = models.CharField(max_length=50)
     platform      = models.ForeignKey('LoginPlatform', on_delete=models.CASCADE)
     user          = models.ForeignKey('User', on_delete=models.CASCADE)
+    email         = models.CharField(max_length=50)
 
     def __str__(self):
-        return user.username + "'s login info"
+        return self.user.username + "'s login info"
 
     class Meta:
         db_table = 'login_info'
 
-class LoginPlatform:
+class LoginPlatform(models.Model):
     name    = models.CharField(max_length=30)
 
     def __str__(self):
-        return name
+        return self.name
 
     class Meta:
-        db_table = 'login_platform
+        db_table = 'login_platforms'
 
 class Wishlist(models.Model):
     user    = models.ForeignKey('User', on_delete=models.CASCADE)
@@ -64,7 +65,7 @@ class Wishlist(models.Model):
     tag     = models.ForeignKey('WishlistTag', on_delete=models.CASCADE)
 
     def __str__(self):
-        return user.username + "'s saved rooms"
+        return self.user.username + "'s saved rooms"
     
     class Meta:
         db_table = 'wishlists'
@@ -73,7 +74,7 @@ class WishlistTag(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
-        return name  
+        return self.name  
     
     class Meta:
         db_table = 'wishlist_tags'
@@ -95,7 +96,7 @@ class Language(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
-        return name 
+        return self.name 
     
     class Meta:
         db_table = 'languages'

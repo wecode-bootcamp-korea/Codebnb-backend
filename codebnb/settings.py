@@ -11,18 +11,58 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import moneyed
+
+from moneyed.localization import _FORMATTER
+from decimal import ROUND_HALF_EVEN
+
 from os.path import join, dirname
 from dotenv import load_dotenv
+import moneyed
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 AWS_HOST = os.environ.get("AWS_HOST")
+SECRET_KEY = os.environ.get("SECRET_KEY")
+HASH = os.environ.get("ALGORITHM")
+S3_ACCESS_KEY_ID = os.environ.get("S3_ACCESS_KEY_ID")
+S3_SECRET_ACCESS_KEY = os.environ.get("S3_SECRET_ACCESS_KEY")
+
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
+EMAIL_HOST = os.environ.get("EMAIL_HOST")
+EMAIL_PORT = os.environ.get("EMAIL_PORT")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")
+EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+KRW = moneyed.add_currency(
+    code='KRW',
+    numeric='410',
+    name='KOREA (THE REPUBLIC OF)',
+    countries=('REPUBLIC OF KOREA', )
+)
+
+OPEN_EXCHANGE_RATES_APP_ID = os.environ.get("OPEN_EXCHANGE_RATES_APP_ID")
+OPEN_EXCHANGE_RATES_URL = 'https://openexchangerates.org/api/latest.json?symbols=KRW,EUR,JPY'
+_FORMATTER.add_sign_definition(
+    'default',
+    moneyed.KRW,
+    suffix=u' KRW'
+)
+
+_FORMATTER.add_formatting_definition(
+    'es_KO',
+    group_size=3, group_separator=".", decimal_point=",",
+    positive_sign="",  trailing_positive_sign="",
+    negative_sign="-", trailing_negative_sign="",
+    rounding_method=ROUND_HALF_EVEN
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -30,11 +70,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
-
 INSTALLED_APPS = [
     # 'django.contrib.admin',
     # 'django.contrib.auth',
@@ -46,7 +85,8 @@ INSTALLED_APPS = [
     'booking',
     'review',
     'room',
-    'corsheaders'
+    'corsheaders',
+    'djmoney.contrib.exchange'
 ]
 
 MIDDLEWARE = [
@@ -106,9 +146,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'codebnb.wsgi.application'
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
 
-HASH = os.environ.get("ALGORITHM")
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

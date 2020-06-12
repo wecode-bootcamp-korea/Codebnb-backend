@@ -1,6 +1,4 @@
 from django.db import models
-from room.models import Room
-from user.models import User
 
 class Booking(models.Model):
     user            = models.ForeignKey('user.User', on_delete=models.CASCADE)
@@ -13,9 +11,10 @@ class Booking(models.Model):
     adults          = models.PositiveIntegerField()
     children        = models.PositiveIntegerField()
     infants         = models.PositiveIntegerField()
+    created_at      = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return room.title + " booked by " + user.username
+        return self.room.title + " booked by " + self.user.username
     
     class Meta:
         db_table = 'bookings'
@@ -24,7 +23,7 @@ class BookingStatus(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
-        return name  
+        return self.name  
     
     class Meta:
         db_table = 'booking_status'
@@ -33,7 +32,7 @@ class PaymentMethod(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
-        return name  
+        return self.name  
     
     class Meta:
         db_table = 'payment_methods'
@@ -42,7 +41,7 @@ class Currency(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
-        return name
+        return self.name
     
     class Meta:
         db_table = 'currencies'
