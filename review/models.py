@@ -1,6 +1,5 @@
 from django.db import models
 
-from user.models import User 
 from room.models import Room
 
 class Review(models.Model):
@@ -13,7 +12,7 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return content[:20]
+        return self.content[:20]
     
     class Meta:
         db_table = 'reviews'
@@ -31,6 +30,10 @@ class Rating(models.Model):
     accuracy        = models.PositiveIntegerField()
     location        = models.PositiveIntegerField()
     value           = models.PositiveIntegerField()
+
+    @property
+    def overall_rating(self):
+        return (self.cleanliness + self.communication + self.check_in + self.accuracy + self.location + self.value) / 6
 
     class Meta:
         db_table = 'ratings'
