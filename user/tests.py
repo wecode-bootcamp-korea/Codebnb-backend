@@ -9,7 +9,6 @@ from booking.models import Booking, Currency
 class FacebookLoginTest(TestCase):
     @classmethod
     def setUp(self):
-        print("setup start")
         currency = Currency.objects.create(name='USD')
         google = LoginPlatform.objects.create(name='Google')
         facebook = LoginPlatform.objects.create(name='Facebook')
@@ -24,13 +23,11 @@ class FacebookLoginTest(TestCase):
             username    = 'JunePyo',
             fullname    = 'JunePyo Suh',
             profile     = profile,
-            # gender      = 'male',
             birthdate   = datetime.date(1995, 11, 11)
         )
         user.save()
         LoginInfo.objects.create(
-            # platform_id = 2,
-            platform = facebook,
+            platform    = facebook,
             user        = user,
             email       = 'june@naver.com'
         )
@@ -45,19 +42,16 @@ class FacebookLoginTest(TestCase):
             username    = 'JaeCheon',
             fullname    = 'JaeCheon Song',
             profile     = profile2,
-            # gender      = 'male',
             birthdate   = datetime.date(1995, 11, 11)
         )
         user2.save()
         LoginInfo.objects.create(
-            # platform_id = 1,
-            platform = google,
+            platform    = google,
             user        = user2,
             email       = 'jae@naver.com'
         )
     
     def tearDown(self):
-        print("teardown start")
         User.objects.all().delete()
         LoginInfo.objects.all().delete()
         UserProfile.objects.all().delete()

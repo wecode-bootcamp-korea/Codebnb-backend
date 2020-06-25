@@ -125,3 +125,4 @@ class TripStateView(View):
                 'end_date'      : booking.end_date,
                 'address'       : booking.room.address
                 } for booking in past_booking.select_related('room')]}]
+        return JsonResponse({'data':booking_list}, status = 200)

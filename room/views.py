@@ -1,6 +1,8 @@
 import datetime 
 import sys
 import time
+import json
+import boto3
 
 from django.views import View
 from django.http import HttpResponse, JsonResponse
@@ -135,7 +137,6 @@ class RoomListView(View):
         amenities       = request.GET.getlist('amenities', None)
         languages       = request.GET.getlist('languages', None)
         
-        print(location)
         queries = (
             Q(address__icontains = location) 
             & Q(max_capacity__gte = adults + children)
@@ -154,7 +155,6 @@ class RoomListView(View):
             queries &= Q(place_type__name = place_type)
         queries = self.list_q(queries, "amenities__name", amenities)
         queries = self.list_q(queries, "host__userlanguage__language__name", languages)
-        print(queries)
         room_qs = Room.objects.filter(queries)
 
         room_qs = self.annotation_filter(room_qs, "num_beds", Sum("bedroom__bed__quantity"), "gte", min_beds)
@@ -213,13 +213,13 @@ class RoomDetailView(View):
             check_in_date   = datetime.datetime.strptime(check_in, '%Y-%m-%d') if check_in else None
             check_out       = request.GET.get('checkout', None)
             check_out_date  = datetime.datetime.strptime(check_out, '%Y-%m-%d') if check_out else None
-            room            = Room.objects.filter(id=room_id).prefetch_related(
+            room            = Room.objects.prefetch_related(
                 'review_set',
                 'characteristics',
                 'shared_spaces',
                 'safety_facilities',
                 'amenities'
-            ).first()
+            ).get(id=room_id)
             bedroom_cache   = Bedroom.objects.filter(room=room).prefetch_related('bed_set')
             review_cache    = Review.objects.filter(room=room, reviewer__name='guest').select_related('rating')
             num_beds = 0
@@ -380,13 +380,13 @@ class RegisterRoomView(View):
             if safety_facilities:
                 for i in range(len(safety_facilities)):
                     RoomSafetyFacility(
-                        room        = new_room,
-                        amenity_id  = int(safety_facilities[i])).save()
+                        room                = new_room,
+                        safety_facility_id  = int(safety_facilities[i])).save()
             if shared_spaces:
                 for i in range(len(safety_facilities)):
                     RoomSharedSpace(
-                        room        = new_room,
-                        amenity_id  = int(shared_spaces[i])).save()
+                        room             = new_room,
+                        shared_space_id  = int(shared_spaces[i])).save()
             Bath(
                 room      = new_room,
                 style     = data.get('bathroom_type', " "),
@@ -397,21 +397,25 @@ class RegisterRoomView(View):
                 start_date  = start_date,
                 end_date    = end_date
                 )
-            file = request.FILES['filename']
+            files = request.FILES.getlist('images')
+            print("files = ",end=""), print(files)  
             s3_client = boto3.client(
                     's3',
                     aws_access_key_id     = S3_ACCESS_KEY_ID,
                     aws_secret_access_key = S3_SECRET_ACCESS_KEY
                 )
-            s3_client.upload_fileobj(
-                file,
-                "codebnb-s3",
-                file.name,
-                ExtraArgs={
-                    "ContentType": file.content_type})
-            image_url       = S3URL+file.name
-            image_url       = image_url.replace(" ", "+")
-            RoomImage.objects.create(room  = new_room, image_url = image_url)
+            for file in files:
+                s3_client.upload_fileobj(
+                    file,
+                    "codebnb-s3",
+                    file.name,
+                    ExtraArgs={
+                        "ContentType": file.content_type})
+                image_url = S3URL+file.name
+                print(image_url)
+                image_url = image_url.replace(" ", "+")
+                print(image_url)
+                RoomImage.objects.create(room  = new_room, image_url = image_url)
             return HttpResponse(status = 200)
         except KeyError:
             return JsonResponse({'error':'INVALID_KEY'}, status=400)
