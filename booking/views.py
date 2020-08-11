@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from djmoney.contrib.exchange.backends import OpenExchangeRatesBackend
 from djmoney.contrib.exchange.models import convert_money
@@ -28,7 +29,7 @@ class BookingView(View):
         check_in_date   = datetime.datetime.strptime(check_in, '%Y-%m-%d')
         check_out       = request.GET.get('checkout')
         check_out_date  = datetime.datetime.strptime(check_out, '%Y-%m-%d') if check_out else None
-        guests_total    = request.GET.get('guests') 
+        guests_total    = request.GET.get('adults') 
         room = Room.objects.prefetch_related(
             'bedroom_set',
             'bath_set',
@@ -42,7 +43,8 @@ class BookingView(View):
             backend        = OpenExchangeRatesBackend(OPEN_EXCHANGE_RATES_URL)
             price_currency = convert_money(Money(room.price, user_currency), currency)
             price_split    = str(price_currency).replace(',', '').split(' ')
-            price          = str(int(float(price_split[0]))) + " " + price_split[1]
+            price_numeric  = re.sub("[^0-9.]", "", price_split[0])
+            price          = str(int(float(price_numeric))) + " " + currency
 
         num_beds = 0
         for bedroom in room.bedroom_set.all():

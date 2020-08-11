@@ -15,7 +15,7 @@ class CheckWriteView(View):
     def get(self, request, pk):
         user = request.user
         if User.objects.prefetch_related('review_set').filter(Q(id = user.id)& Q(guest_reviews__room__id = pk)).exists():
-            return JsonResponse({'meesage':'Already Writ Review'}, status = 400)
+            return JsonResponse({'message':'Review Already Written'}, status = 400)
         return HttpResponse(status = 200)
 
 class RoomReviewView(View):
