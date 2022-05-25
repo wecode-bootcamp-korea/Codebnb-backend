@@ -12,7 +12,7 @@ mysqlclient==1.4.6
 Pillow==7.1.2
 pycparser==2.20
 Pygments==2.6.1
-PyJWT==1.7.1
+PyJWT==2.4.0
 python-dotenv==0.13.0
 pytz==2020.1
 requests==2.23.0
